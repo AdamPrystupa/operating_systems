@@ -1,0 +1,88 @@
+ZAD.1
+(a)
+"strace" to narzędzie służące do śledzenia wywołań systemowych wykonywanych przez program. 
+Co do najważniejszych opcji to zależy to od tego co chcemy uzyskać jednak przydatne mogą sie okazać poniższe opcje:
+-e: umożliwia śledzenie tylko wybranych wywołań systemowych (np. open, read).
+-p: śledzenie procesu o określonym PID bez konieczności ponownego uruchamiania programu.
+-o: zapisuje wyjście wywołania strace do pliku.
+-tt: dodaje dokładny znacznik czasu dla każdej linii.
+-T: pokazuje czas trwania każdego wywołania.
+-c: pokazuje czas spędzony na poszczególnych wywołaniach systemowych.
+-f: pozwala na śledzenie procesów potomnych.
+
+(b)
+Po wywołaniu polecenia:
+$ strace ./zad1b
+
+write(1, "Hello world!\n", 13Hello world!)          = 13
+
+
+można odnaleźć w jego wyniku, że funkcja która została wywołana w celu wyświetlenia napisu to "write".
+Funkcja printf() w języku ANSI C w celu wypisania komunikatu w terminalu musi o to "poprosić" system służy do tego własnie
+systemcall "write", który został wywołany.
+
+(c)
+Aplikacja posiada dwa deskryptory: 1 i 3.
+
+(d)
+Przez funkcje systemową został wyswietlony napis "Hello world aprystup!".
+Getnev nie jest widoczny dla systemu ponieważ jest to funkcja z biblioteki a nie funkcja systemowa.
+
+Po wywołaniu ltrace można zaobserwować, że getnev został uchwycony:
+getenv("LOGNAME")                                                            = "aprystup"
+
+Strace i ltrace dostarczają uzupełniających się informacji. Strace jest idealny do analizy interakcji programu z systemem operacyjnym,
+a ltrace do analizy na poziomie bibliotecznym. Połączenie wyników z obu narzędzi pozwala uzyskać pełny wgląd w działanie programu.
+Aby jednoczśnie śledzić wywołania strace i ltrace możemy użyć potoku i zapisać je do pliku np:
+$ strace -o strace.txt ./zad1d & ltrace -o ltrace.txt ./zad1d
+
+dla ułatwienia można stworzyć skrypt realizujący takie wywolanie
+
+(e)
+Wyrażenie z strace wskazujące WYŁĄCZNIE odczytywane pliki:
+$ strace -e t=openat sh hello.sh
+
+Wynik wywołania:
+openat(AT_FDCWD, "/etc/ld.so.preload", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "hello.sh", O_RDONLY)  = 3
+Hello world!
++++ exited with 0 +++
+
+(f)
+Aby sprawdzić czy plik edytowany w programie pico w czasie jego edycji jest stale otwarty. Otworzyłem plik w jednym terminalu
+przy pomocy pico. Następnie w nowym terminalu wywołałem:
+$ strace -p "PID"
+gdzie PID to id procesu pico.
+Okazało się, że dopóki plik jest otwarty w programie to w czsaie edycji jest on cały czas otwarty.
+
+(g)
+Sygnał który zabił program: SIGSEGV (segmentation fault).
+Przyczyna: Ten sygnał jest generowany, gdy program próbuje odczytać lub zapisać dane poza obszarem pamięci, 
+do którego ma dostęp. W tym przypadku index zwiększa się bez końca, a program próbuje uzyskać dostęp do 
+pamięci poza granicami tablicy napis.
+
+Wyrażenie strace generujące potrzebne informacje:
+$ strace -e t=signal ./zad1g
+
+(h)
+Do analizy użyłem przeglądarki firefox.
+Wywołałem strace w nastepujący sposób:
+$ strace -T -o zad1h.txt firefox
+
+i po przesortowaniu wyników malejąco otrzymałem taki wynik czas w <x.xxxxx>:
+1. waitid(P_PID, 29429, {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=29429, si_uid=1000, si_status=0, si_utime=0,
+ si_stime=0}, WEXITED|WNOWAIT, NULL) = 0 <0.003779>
+2. read(3, "['microsoft-edge.desktop', 'org."..., 128) = 128 <0.003271>
+3. read(3, "", 128) = 0 <0.002179>
+4. read(3, "", 128) = 0 <0.002172>
+5. wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 29421 <0.001648>
+6. wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 29418 <0.001002>
+7. execve("/usr/bin/firefox", ["firefox"], 0x7ffce8739ef8 /* 58 vars */) = 0 <0.000811>
+8. read(3, "", 128) = 0 <0.000513>
+9. futex(0x5d1045ac1ee0, FUTEX_WAIT_PRIVATE, 0, NULL) = 0 <0.000408>
+
+Te wywołania pokazują, które operacje zajęły najwięcej czasu. Analiza czasowa z strace i ltrace dostarcza
+ przydatnych informacji na temat działania programów, szczególnie w kontekście debugowania i optymalizacji,
+  pomagając lepiej zrozumieć czasochłonne fragmenty kodu.

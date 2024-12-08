@@ -1,0 +1,51 @@
+Zad 3.
+Zestaw danych: X=4, Y=5, N=2, S=10.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 7 terenów.
+Syn 1 zdobył 8 terenów.
+
+Szczegóły terenów:
+[1][0][0][0]
+[0][1][0][-1]
+[0][1][-1][0]
+[1][-1][1][-1]
+[1][1][1][-1]
+
+Niezajęte tereny: 5
+
+
+Zestaw danych: X=4, Y=5, N=10, S=10.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 2 terenów.
+Syn 1 zdobył 4 terenów.
+Syn 2 zdobył 3 terenów.
+Syn 3 zdobył 2 terenów.
+
+Szczegóły terenów:
+[1][1][6][2]
+[4][3][6][2]
+[2][6][4][7]
+[3][0][0][4]
+[9][1][5][1]
+
+Niezajęte tereny: 0
+
+Zestaw danych: X=5, Y=5, N=6, S=5.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 4 terenów.
+Syn 1 zdobył 1 terenów.
+Syn 2 zdobył 3 terenów.
+Syn 3 zdobył 3 terenów.
+Syn 4 zdobył 3 terenów.
+
+Szczegóły terenów:
+[2][0][-1][3][0]
+[5][3][-1][-1][1]
+[-1][-1][3][2][0]
+[5][5][-1][4][2]
+[-1][4][0][4][-1]
+
+Niezajęte tereny: 8

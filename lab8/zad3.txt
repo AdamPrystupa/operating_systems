@@ -1,0 +1,46 @@
+Zad 3.
+(a) Wynik sprawdzenia poprawności działania programu:
+$ ./zad3 10000 2
+"Suma pierwszych 10000 liczb nieparzystych zaczynajac od 2 to: 496165411"
+Co jest dowodem na poprawność działania programu.
+
+(b) Wersja wielowątkowa nie zawsze daje takie same wyniki jak wersja jednowatkowa. Jest to spowodowane brakiem synchronizacji. Zmienna sprawdz 
+jest współdzielona przez wszystkie wątki i jest modyfikowana bez żadnej synchronizacji. Może to prowadzić do sytuacji, w której różne wątki 
+odczytują tę samą wartość lub inkrementują ją jednocześnie. Podobnie, zmienne suma i znalezione są modyfikowane przez wątki równolegle.
+
+(c) Wersja z mutexsami zawsze daje taki sam wynik jak wersja jednowatkowa. Dzięki użyciu mutexów wszystkie sekcje krytyczne są chronione, 
+eliminując błędy związane z wyścigami danych. Program działa szybciej dla większych wartości N dzięki równoległemu wykonywaniu obliczeń. 
+Przyspieszenie nie jest idealnie proporcjonalne do liczby wątków z powodu narzutu związanego z synchronizacją mutexów oraz graniczeń sprzętowych 
+i konkurencji o zasoby (np. pamięć podręczną CPU). Dla K zbliżonego do liczby rdzeni fizycznych wydajność jest optymalna. Dodawanie kolejnych wątków 
+może nawet spowolnić program z powodu większego narzutu na synchronizację i obsługę wątków. Dla mniejszych wartości ta wersja może działać jednak 
+wolniej od tej jednowątkowej.
+(procesor 12-watkowy)
+
+
+N=10000 M=2 K=10
+jendowątkowa: 0,068s
+wielowątkowa: 0.129s
+wynik: 496165411
+
+N=100000 M=2 K=10
+jendowątkowa: 1,425s
+wielowątkowa: 0.970s
+wynik: 62260698721
+ 
+N=50000 M=10000 K=10
+jendowątkowa: 0,627s
+wielowątkowa: 0.621s
+wynik: 15374730196
+
+N=250000 M=2 K=10
+czas działania programu wielowątkowego: 2,665 
+wynik: 420257213289
+
+N=100 M=1000000 K=10
+czas działania programu wielowątkowego: 0,005 
+wynik: 100065408
+
+N=1000000 M=5000 K=10
+czas działania programu wielowątkowego: 10,046
+
+

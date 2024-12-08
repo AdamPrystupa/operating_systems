@@ -1,0 +1,42 @@
+Adam Prystupa 275496
+
+Zad 1.
+Instalacja się udała. Została zrealizaowana na potrzeby zadania.
+
+System: Ubuntu 24.04.1 
+
+Zad 2.
+(a) Brak możliwości pobrania publikacji. Spowodowane jest to prawdopodobnie wygaśnięciem konta bibliotecznego w systemie.
+(b) Nie można jednoznacznie stwierdzić czy brak możliwości pobrania publikacji jest spowodownay brakiem dostępu do niego spoza uczelni
+czy wyżej wspomnianego konta bibliotecznego.
+
+VPN był aktywny podczas próby 2(a) i wyłączony podczas próby 2(b).
+
+Zad 3.
+Podczas kompilacji programu wystąpił błąd zamieszczony poniżej:
+
+zad3.c:35:23: error: call to undeclared function 'drand48'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |         int x = (int)(drand48() * shared_data->X);
+      |                       ^
+zad3.c:47:9: error: call to undeclared function 'usleep'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   47 |         usleep(1000); 
+      |         ^
+zad3.c:47:9: note: did you mean 'sleep'?
+/usr/include/unistd.h:464:21: note: 'sleep' declared here
+  464 | extern unsigned int sleep (unsigned int __seconds);
+      |                     ^
+zad3.c:102:5: error: call to undeclared function 'srand48'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  102 |     srand48(time(NULL) ^ getpid()); 
+      |     ^
+zad3.c:102:5: note: did you mean 'srand'?
+/usr/include/stdlib.h:575:13: note: 'srand' declared here
+  575 | extern void srand (unsigned int __seed) __THROW;
+      |             ^
+3 errors generated.
+
+Błędy wskazują na problemy wynikające z użycia funkcji POSIX, które nie są domyślnie obsługiwane w standardzie tego kompilatora.
+
+Zad 4.
+(a) Jakość instrukcji Global Protect VPN zapewnionej przez DI [1-10]: 8
+(b) Łatwość instalacji Global Protect VPN [1-10]: 7
+(c) Jakość pracy z pośrednictwem Global Protect VPN [1-10]: 3

@@ -1,0 +1,8 @@
+(a) ps - l -u aprystup | wc -l
+
+wynik -1 bo pierwszy wiersz to nagłówek kolumn
+
+(b) liczenie: pgrep -a -c sshd
+
+wyswietlanie: ps -f -p $(pgrep sshd)
+

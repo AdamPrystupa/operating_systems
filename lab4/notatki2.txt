@@ -1,0 +1,127 @@
+ZAD.3 
+Po zapoznaniu się z zasadą działania katalogu /proc przeszedłem do realizacji zadania.
+Uruchomiłem program zad2. Następnie wywołałem polecenie:
+$ cat /proc/"PID"/status
+gdzie PID to numer id procesu zad2.
+
+Otrzymany wynik wygląda następująco:
+Name:	zad2
+Umask:	0022
+State:	S (sleeping)
+Tgid:	1456725
+Ngid:	0
+Pid:	1456725
+PPid:	1423490
+TracerPid:	0
+Uid:	17159	17159	17159	17159
+Gid:	1022	1022	1022	1022
+FDSize:	256
+Groups:	1022 
+NStgid:	1456725
+NSpid:	1456725
+NSpgid:	1456725
+NSsid:	1423490
+VmPeak:	    2460 kB
+VmSize:	    2460 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	     904 kB
+VmRSS:	     904 kB
+RssAnon:	      88 kB
+RssFile:	     816 kB
+RssShmem:	       0 kB
+VmData:	     224 kB
+VmStk:	     132 kB
+VmExe:	       4 kB
+VmLib:	    1520 kB
+VmPTE:	      44 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	1
+SigQ:	0/1031065
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000800
+SigIgn:	0000000000002000
+SigCgt:	0000000000004a00
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ffffffff,ffffffff
+Cpus_allowed_list:	0-63
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,000000ff
+Mems_allowed_list:	0-7
+voluntary_ctxt_switches:	4583
+nonvoluntary_ctxt_switches:	1
+
+Aby wyciągnąć tylko interesujące nas informacje można użyć polecenia:
+$ grep -E 'SigBlk|SigIgn|SigCgt' /proc/"PID"/status
+gdzie otrzmamy tylko trzy wymienione linie z pliku.
+
+
+To na co zwracamy uwagę w tym zadaniu to linie:
+SigPnd - sygnały oczekujących dla procesu,
+ShdPnd - sygnały oczekujących dla wszystkich wątków,
+SigBlk - sygnały zablokowane,
+SigCgt - sygnały przechwytywane,
+SigIgn - sygnały ignorowane.
+
+Wyjaśnienie:
+Dla SigIgn mamy wynik:
+0000000000002000 (#16) = 0000 0010 0000 0000 0000 (#2)
+czyli ustawiony jest bit na pozycji 13 licząc od 0.
+Co odpowiada pozycji 14 w tabeli sygnałów dla Linuxa sygnałowi SIGALRM.
+Jest to zgodne z tym co realizowaliśmy w programie zad2.
+
+Tabla sygnałów (fragment):
+       SIGHUP           1           1       1       1
+       SIGINT           2           2       2       2
+       SIGQUIT          3           3       3       3
+       SIGILL           4           4       4       4
+       SIGTRAP          5           5       5       5
+       SIGABRT          6           6       6       6
+       SIGIOT           6           6       6       6
+       SIGBUS           7          10      10      10
+       SIGEMT           -           7       7      -
+       SIGFPE           8           8       8       8
+       SIGKILL          9           9       9       9
+       SIGUSR1         10          30      16      16
+       SIGSEGV         11          11      11      11
+       SIGUSR2         12          31      17      17
+       SIGPIPE         13          13      13      13
+       SIGALRM         14          14      14      14
+       SIGTERM         15          15      15      15
+
+ZAD.4
+Potok jakiego użyłem do realizacji zadania:
+$ yes "Hello" | cat | grep "Hello"
+
+Użyłem polecenia lsof.
+Wywołałem kolejno:
+$ lsof -p 1488239 - yes "Hello" 
+$ lsof -p 1488240 - cat
+$ lsof -p 1488241 - grep "Hello"
+
+Następnie analizując sekcję pipe, która mówi nam o potokach do któych maja dostęp procesy można wywnioskować,
+że da się odtworzyć kolejność występowania poleceń w potoku. 
+Aby to zrobić należy:
+Sprawdzić, który proces ma dostęp do tylko jednego potoku i zapisuje do niego - polecenie pierwsze.
+yes     1488239 aprystup    1w  FIFO   0,13      0t0  3504642 pipe
+
+Odnaleźć proces odczytujący z potoku pierwszego i zapisujący do potoku drugiego - polecenie drugie.
+cat     1488240 aprystup    0r  FIFO   0,13      0t0  3504642 pipe
+cat     1488240 aprystup    1w  FIFO   0,13      0t0  3504644 pipe
+
+Ostatnim procesem jest ten, który tylko odczytuje z ostatniego potoku.
+grep    1488241 aprystup    0r  FIFO   0,13      0t0  3504644 pipe
+
+

@@ -1,0 +1,109 @@
+Polecenia `ps -l` i `ps -f` wyświetlają szczegółowe informacje o procesach, ale różnią się formatem i zakresem prezentowanych danych:
+
+### 1. `ps -l` (long format)
+- **Opis**: Wyświetla procesy w **długim formacie**, z naciskiem na identyfikatory procesów, priorytety i inne techniczne szczegóły związane z zarządzaniem procesami w systemie.
+- **Kluczowe kolumny**:
+  - **F**: Flagi procesu (np. czy proces jest systemowy, czy można go przełączyć).
+  - **UID**: Identyfikator użytkownika, który uruchomił proces.
+  - **PID**: Identyfikator procesu (Process ID).
+  - **PPID**: Identyfikator procesu macierzystego (Parent Process ID).
+  - **PRI**: Priorytet procesu (niższe liczby oznaczają wyższy priorytet).
+  - **NI**: Tzw. "niceness" procesu, co wpływa na priorytet (im wyższa wartość, tym mniejszy priorytet).
+  - **ADDR**: Adres pamięci procesu (rządko używany na nowszych systemach).
+  - **SZ**: Rozmiar obrazu pamięci procesu.
+  - **WCHAN**: Informuje, na co proces czeka (jeśli jest uśpiony).
+  - **TTY**: Terminal powiązany z procesem.
+  - **TIME**: Czas procesora zużyty przez proces.
+  - **CMD**: Polecenie wywołujące proces.
+
+
+
+### 2. `ps -f` (full format)
+- **Opis**: Wyświetla procesy w **pełnym formacie**, który skupia się bardziej na zrozumieniu użytkowników procesów i pełnym poleceniu, które uruchomiło proces. Jest to bardziej czytelny dla użytkowników końcowych.
+- **Kluczowe kolumny**:
+  - **UID**: Użytkownik, który uruchomił proces.
+  - **PID**: Identyfikator procesu.
+  - **PPID**: Identyfikator procesu macierzystego.
+  - **C**: Wartość "niceness" procesu (współczynnik użycia CPU).
+  - **STIME**: Czas rozpoczęcia procesu.
+  - **TTY**: Terminal, z którego uruchomiono proces.
+  - **TIME**: Czas procesora użyty przez proces.
+  - **CMD**: Pełne polecenie wywołujące proces (łącznie z argumentami).
+
+
+1. Flaga -u (user):
+Opis: Pozwala na wyświetlanie procesów związanych z konkretnym użytkownikiem.
+Sposób użycia: Można podać nazwę użytkownika lub jego identyfikator (UID).
+Przykład:
+
+ps -u adam
+
+To polecenie pokaże wszystkie procesy uruchomione przez użytkownika adam.
+
+2. Flaga -t (terminal):
+Opis: Wyświetla procesy przypisane do określonego terminala (TTY). Terminalem może być sesja konsolowa lub sesja zdalna.
+Sposób użycia: Można podać identyfikator terminala.
+Przykład:
+
+ps -t pts/0
+
+To polecenie pokaże wszystkie procesy związane z terminalem pts/0.
+
+3. Flaga -p (PID):
+Opis: Pozwala na wyświetlanie informacji o procesach o konkretnych numerach PID (Process ID).
+
+Sposób użycia: Można podać pojedynczy PID lub listę PID-ów oddzielonych przecinkami.
+
+Przykład:
+
+ps -p 1234
+To polecenie pokaże informacje o procesie o numerze PID 1234.
+
+Przykład z wieloma PID-ami:
+
+ps -p 1234,5678,91011
+
+
+Aby utworzyć potok składający się z trzech poleceń systemowych, które będą działały przez zauważalny czas, możemy użyć standardowych narzędzi Unix/Linux takich jak **`yes`**, **`cat`**, i **`grep`**.
+
+### Plan:
+- **`yes`**: Będzie generował nieskończony strumień danych (powtarzające się "y").
+- **`cat`**: Będzie przekazywał dane bez zmian (w praktyce może być czymkolwiek, co odbiera dane).
+- **`grep`**: Będzie filtrował dane, np. wypisując tylko wiersze zawierające literę "y".
+
+### Potok:
+```bash
+yes "y" | cat | grep "y"
+```
+
+### 1. Wyjaśnienie poleceń:
+
+- **`yes "y"`**: Generuje nieskończony strumień wierszy, które zawierają literę "y".
+- **`cat`**: Odbiera dane od **`yes`** i przekazuje je dalej bez zmian.
+- **`grep "y"`**: Filtrowanie wyników - wyświetla tylko te linie, które zawierają literę "y" (wszystkie linie będą pasować, ponieważ generowane dane to ciągłe "y").
+
+### 2. Sprawdzenie pokrewieństwa procesów za pomocą `ps`:
+
+Podczas działania potoku możesz sprawdzić zależności między procesami za pomocą `ps`:
+```bash
+ps --forest -o pid,ppid,cmd
+```
+
+Przykładowy wynik może wyglądać następująco:
+
+```
+  PID  PPID CMD
+ 1000  900  bash
+ 1100  1000  \_ yes y
+ 1101  1000      \_ cat
+ 1102  1000          \_ grep y
+```
+
+### 3. Wyjaśnienie pokrewieństwa między procesami:
+- **`yes`** generuje dane, które są przekazywane przez **`cat`** do **`grep`**. 
+- Wszystkie te procesy mają wspólnego rodzica, którym jest proces powłoki (bash). Oznacza to, że procesy są częścią tego samego drzewa procesów.
+- Proces nadrzędny (bash) uruchomił potok, a każdy z procesów w potoku jest jego bezpośrednim dzieckiem.
+
+### 4. Wnioski:
+Procesy w potoku są hierarchiczne i współzależne, co oznacza, że jeden proces nie zakończy się, dopóki potok nie zakończy działania (lub jeśli nie przerwiesz go ręcznie). 
+Możesz to sprawdzić, uruchamiając potok i obserwując ich strukturę za pomocą `ps --forest`.

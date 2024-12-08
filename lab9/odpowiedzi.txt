@@ -1,0 +1,78 @@
+Zad 1.
+Program bug2.c uruchamia się zwraca rozmiar stosu wątku i wyrzuca segmentation fault.
+Po przeanalizowaniu kodu można dojść do wniosku, że program wymaga znacznie większego stosu dla każdego z wątków niż 
+ten tworzony domyślnie.
+2 miliony elementów typu double (8 bajtów każdy) daje łącznie 16 milionów czyli 16MB co znacznie przewyższa domyślną wielkość
+( z tego co wypisuje program około 8,4MB).
+
+Aby naprawić ten program można zwiększyć wielkość stosu dla wątku przy pomocy funckji pthread_attr_setstacksize.
+Drugim rozwiązaniem jest dynamiczne lokowanie pamięci pod tablice z wykorzystaniem malloc.
+
+Zad 2.
+(b) W programie bug1.c zamiast jednego wątku watch_count, są cztery wątki czekające na ten sam sygnał warunkowy. Gdy
+COUNT_LIMIT zostanie osiągnięte, tylko jeden wątek zostanie odblokowany, ponieważ użyto pthread_cond_signal.
+Pozostałe wątki pozostają w stanie oczekiwania, co może prowadzić do zawieszenia programu (można to zaobserować uruchamiając program).
+
+Aby uniknąc zablokowania pozostałych trzech wątków należy użyć funkcji pthread_cond_brodcast (wysyła ona sygnał od wszystkich wątków oczekujacych)
+zamiast pthread_cond_signal. To pozwoli na odblokowanie wszystkich wątków oczekujących i uniknięcie błędów np. zawieszania się programu.
+
+(c) Problem w programie bug4.c spowodowany jest wyścigiem wątków. Kiedy wątek sub2 zwieskza count po czym wysyła sygnał, watek sub1 może
+nie zauważyć tego sygnału przez to, że jeszcze nie uruchomił funckji pthread_cond_wait, przez to sub1 zostaje zablokowany.
+Jeśli sygnał jest wysyłany przed wejściem w stan oczekiwania przez drugi wątek to ten nigdy go nie odnotuje i nie zostanir obudzony.
+
+Aby naprawić program można zastosować warunek logiczny sprawdzający ( count < THRESHOLD ) przed wywołaniem funkcji pthread_cond_wait.
+
+Zad 3.
+Zestaw danych: X=4, Y=5, N=2, S=10.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 7 terenów.
+Syn 1 zdobył 8 terenów.
+
+Szczegóły terenów:
+[1][0][0][0]
+[0][1][0][-1]
+[0][1][-1][0]
+[1][-1][1][-1]
+[1][1][1][-1]
+
+Niezajęte tereny: 5
+
+
+Zestaw danych: X=4, Y=5, N=10, S=10.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 2 terenów.
+Syn 1 zdobył 4 terenów.
+Syn 2 zdobył 3 terenów.
+Syn 3 zdobył 2 terenów.
+
+Szczegóły terenów:
+[1][1][6][2]
+[4][3][6][2]
+[2][6][4][7]
+[3][0][0][4]
+[9][1][5][1]
+
+Niezajęte tereny: 0
+
+Zestaw danych: X=5, Y=5, N=6, S=5.
+
+Podsumowanie zdobytych terenów:
+Syn 0 zdobył 4 terenów.
+Syn 1 zdobył 1 terenów.
+Syn 2 zdobył 3 terenów.
+Syn 3 zdobył 3 terenów.
+Syn 4 zdobył 3 terenów.
+
+Szczegóły terenów:
+[2][0][-1][3][0]
+[5][3][-1][-1][1]
+[-1][-1][3][2][0]
+[5][5][-1][4][2]
+[-1][4][0][4][-1]
+
+Niezajęte tereny: 8
+
+
+
