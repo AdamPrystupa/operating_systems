@@ -1,63 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
 #include <string.h>
-#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-#define FIFO_PATH "/tmp/image_fifo"  // Ścieżka do potoku FIFO
 #define BUFFER_SIZE 256
-#define DELAY_SECONDS 5
+#define PACKAGE_SIZE 50
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        fprintf(stderr, "Użycie: %s <plik1> <plik2> ... <plikN>\n", argv[0]);
+        fprintf(stderr, "Użycie: %s <ścieżka do pliku1> <ścieżka do pliku2> ...\n", argv[0]);
         return 1;
     }
 
-    // Utworzenie potoku FIFO, jeśli jeszcze nie istnieje
-    if (mkfifo(FIFO_PATH, 0666) == -1) {
-        if (errno != EEXIST) { // Ignoruj błąd, jeśli FIFO już istnieje
-            perror("mkfifo");
-            return 1;
-        }
+    const char *fifo_path = "/tmp/my-fifo";
+
+    if (mkfifo(fifo_path, 0666) == -1) {
+        perror("mkfifo");
+        return 1;
     }
 
-    // Otwórz potok do zapisu
-    int fifo_fd = open(FIFO_PATH, O_WRONLY);
+    int fifo_fd = open(fifo_path, O_WRONLY);
     if (fifo_fd == -1) {
         perror("open");
         return 1;
     }
 
+    FILE **files = malloc((argc - 1) * sizeof(FILE *));
+    size_t *offsets = malloc((argc - 1) * sizeof(size_t));
+    int files_remaining = 0;
+
     for (int i = 1; i < argc; i++) {
-        // Otwórz plik graficzny w trybie binarnym
-        FILE *file = fopen(argv[i], "rb");
+        FILE *file = fopen(argv[i], "r");
         if (file == NULL) {
             perror("fopen");
-            continue;  // Pomijamy ten plik i przechodzimy do następnego
+            files[i - 1] = NULL;
+            offsets[i - 1] = 0;
+            continue;
         }
-
-        // Przesyłanie zawartości pliku do FIFO
-        char buffer[BUFFER_SIZE];
-        size_t bytesRead;
-
-        while ((bytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-            if (write(fifo_fd, buffer, bytesRead) == -1) {
-                perror("write");
-                fclose(file);
-                close(fifo_fd);
-                return 1;
-            }
-        }
-
-        fclose(file); // Zamknij plik po przesłaniu danych
-
-        // Odczekaj 5 sekund przed przesyłaniem kolejnego pliku
-        sleep(DELAY_SECONDS);
+        files[i - 1] = file;
+        offsets[i - 1] = 0;
+        files_remaining++;
+        char header[BUFFER_SIZE];
+        snprintf(header, sizeof(header), "### START PLIKU %d: %s ###\n", i, argv[i]);
+        write(fifo_fd, header, strlen(header));
     }
 
-    close(fifo_fd); // Zamknij potok FIFO
+    char buffer[PACKAGE_SIZE + 1];
+
+    while (files_remaining > 0) {
+        for (int i = 0; i < argc - 1; i++) {
+            if (files[i] == NULL) {
+                continue;
+            }
+
+            size_t bytes_read = fread(buffer, 1, PACKAGE_SIZE, files[i]);
+            if (bytes_read > 0) {
+                char packet[BUFFER_SIZE + 1];
+                snprintf(packet, sizeof(packet), "PLIK %d: %.*s\n", i + 1, (int)bytes_read, buffer);
+                write(fifo_fd, packet, strlen(packet));
+            } else {
+                fclose(files[i]);
+                files[i] = NULL;
+                files_remaining--;
+            }
+            sleep(1);
+        }
+    }
+
+    free(files);
+    free(offsets);
+
+
+    const char *end_message = "### KONIEC PRZESYŁANIA ###\n";
+    write(fifo_fd, end_message, strlen(end_message));
+
+    close(fifo_fd);
+    unlink(fifo_path);
+
     return 0;
 }
