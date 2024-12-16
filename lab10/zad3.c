@@ -69,15 +69,7 @@ int load_words_from_file(const char *filename, char words[MAX_LINES][MAX_WORD_LE
     return count;
 }
 
-// Funkcja zmienia wszystkie litery na małe
-void to_lowercase(const char *input, char *output) {
-    for (int i = 0; input[i] != '\0'; i++) {
-        output[i] = tolower(input[i]);
-    }
-    output[strlen(input)] = '\0';
-}
 
-// Funkcja zmienia wszystkie litery na wielkie
 void to_uppercase(const char *input, char *output) {
     for (int i = 0; input[i] != '\0'; i++) {
         output[i] = toupper(input[i]);
@@ -85,7 +77,6 @@ void to_uppercase(const char *input, char *output) {
     output[strlen(input)] = '\0';
 }
 
-// Funkcja zamienia pierwszą literę na wielką, reszta pozostaje mała
 void capitalize(const char *input, char *output) {
     if (input[0] != '\0') {
         output[0] = toupper(input[0]);
@@ -101,16 +92,13 @@ void check_password_variants(const char *word, char hashed_passwords[MAX_LINES][
     char modified_word[MAX_WORD_LEN];
     char variant_word[MAX_WORD_LEN];
 
-    // Warianty bazowe dla słowa
     char lowercase_word[MAX_WORD_LEN];
     char uppercase_word[MAX_WORD_LEN];
     char capitalized_word[MAX_WORD_LEN];
 
-    to_lowercase(word, lowercase_word);
     to_uppercase(word, uppercase_word);
     capitalize(word, capitalized_word);
 
-    // Sprawdzenie podstawowego słowa w trzech konfiguracjach wielkich liter
     const char *base_variants[] = {word, lowercase_word, uppercase_word, capitalized_word};
     for (int k = 0; k < 4; k++) {
         bytes2md5(base_variants[k], strlen(base_variants[k]), hash);
@@ -121,13 +109,13 @@ void check_password_variants(const char *word, char hashed_passwords[MAX_LINES][
         }
     }
 
-    // Prefiksy i sufiksy (0–9999 dla obu)
+
     for (int prefix = 0; prefix < MAX_PREFIX_POSTFIX; prefix++) {
         for (int postfix = 0; postfix < MAX_PREFIX_POSTFIX; postfix++) {
-            for (int k = 0; k < 4; k++) { // Przetwarzanie wszystkich wariantów liter
+            for (int k = 0; k < 4; k++) { 
                 if (prefix == 0 && postfix == 0) continue;
 
-                // Budowanie słowa z prefiksem i sufiksem
+
                 if (prefix > 0 && postfix > 0) {
                     snprintf(modified_word, MAX_WORD_LEN, "%d%s%d", prefix, base_variants[k], postfix);
                 } else if (prefix > 0) {
@@ -136,7 +124,7 @@ void check_password_variants(const char *word, char hashed_passwords[MAX_LINES][
                     snprintf(modified_word, MAX_WORD_LEN, "%s%d", base_variants[k], postfix);
                 }
 
-                // Sprawdzenie wariantu
+                
                 bytes2md5(modified_word, strlen(modified_word), hash);
                 for (int j = 0; j < num_passwords; j++) {
                     if (strcmp(hash, hashed_passwords[j]) == 0) {
@@ -155,10 +143,10 @@ int main() {
     char emails[MAX_LINES][MAX_WORD_LEN];
     char dictionary[MAX_LINES][MAX_WORD_LEN];
 
-    int num_passwords = load_hashes_and_emails("hdz3.txt", hashed_passwords, emails);
+    int num_passwords = load_hashes_and_emails("test-data3.txt", hashed_passwords, emails);
     if (num_passwords == -1) return 1;
 
-    int num_words = load_words_from_file("msph123.txt", dictionary);
+    int num_words = load_words_from_file("test-dict-mini.txt", dictionary);
     if (num_words == -1) return 1;
 
     for (int i = 0; i < num_words; i++) {
