@@ -81,7 +81,8 @@ void *rejent(void *arg) {
         }
         printf("\n");
     }
-    printf("\nNiezajete tereny: %d\n", unclaimed);
+    printf("\n");
+    printf("Niezajete tereny: %d\n", unclaimed);
 
     pthread_mutex_unlock(&shared_data->mutex);
     return NULL;

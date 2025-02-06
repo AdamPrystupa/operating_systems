@@ -1,0 +1,3 @@
+getenv("LOGNAME")                                                            = "aprystup"
+printf("Hello world %s!\n", "aprystup")                                      = 22
++++ exited (status 0) +++

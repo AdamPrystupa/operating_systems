@@ -1,0 +1,27 @@
+Zad 1.
+(a) Kolejność wykonywania wątków może być inna przy każdym uruchomieniu programu. Wątki nie są wykonywane w kolejności ich tworzenia. 
+Kolejność zależy od systemu operacyjnego i obciążenia procesora.
+
+(b) Każdy wątek wykona obliczenia niezależnie. Praca obliczeniowa wpływa na czas działania wątków, co może zmienić kolejność zakończenia ich pracy. 
+Nadal kolejnośc wykonywania wątków może być inna przy każdym uruchomieniu programu.
+
+(c) Program bug5.c ma problem, który powoduje to, żę wątki nie mogą wykonać swojej pracy i program kończy ich działanie przed ich zakończeniem. 
+Problem wynika  z braku oczekiwania na zakończenie poszczególnych wątków w funkcji main(). Gdyby zamiast wątków użyć podprocesów sytuacja ta 
+nie miałaby miejsca. Wynika to z zasady ich działania gdzie nie są one częścią programu a osobnymi niezależnymi programami i dopóki nie dostaną 
+sygnału zabijającego je to będą się wykonywać. 
+
+(d) Po zmniejszeniu ilości iteracji w większości przypadków conajmniej 3 z 4 wywołanych wątków wykonuje się jednak nie w ustalonej kolejności. 
+Po dodaniu bariery widać, że program czeka na utworzenie wszystkich wątków i dopiero wtedy rozpoczyna obliczenia kiedy każdy wątek jest gotowy.
+
+Zad 2.
+Program hello_arg1.c przekazuje pojedynczy argument w postaci numeru wątku, co jest wystarczające, gdy tylko jeden argument jest wymagany.
+Program hello_arg2.c pokazuje sposób na przekazanie większej ilości danych, używając struktury, co jest bardziej elastyczne i pozwala na rozszerzenie o dodatkowe dane (suma).
+
+Program bug3.c
+Program ma błąd związany z przekazywaniem wskaźnika do identyfikatora wątku (&t). Wartość przekazywana do funkcji wątku (PrintHello) może być nieprawidłowa, 
+ponieważ wskaźnik odnosi się do zmiennej t, która jest wspólna dla wszystkich iteracji pętli. W efekcie wszystkie wątki mogą otrzymać tę samą wartość t, 
+zależnie od tego, kiedy wątki zaczną działać.Zmienne lokalne, takie jak t, znajdują się na stosie i mogą być nadpisywane w trakcie działania programu. 
+W momencie, gdy wątek zaczyna korzystać z t, wartość ta mogła już ulec zmianie. 
+Aby rozwiazać ten problem można stworzyć dodatkowy np. wektor, w którym zapisujemy na bieżąco id pobierane z iteracji na pozycjach odpowiednich dla id kolejnych wątków.
+
+

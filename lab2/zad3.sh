@@ -1,15 +1,15 @@
 #!/bin/bash
 
-for arg in "$@"; do
-	if [ -f "$arg" ]; then
-		echo "plik $arg istnieje"
-	elif [ -d "$arg" ]; then
-		if [ "$(ls -A "$arg")" ]; then	
-			echo "$arg jest katalogiem"
+for i in "$@"; do
+	if [ -f $i ]; then
+		echo "Plik "$i" istnieje"
+	elif [ -d $i ]; then
+		if [ -n "ls -a $i" ]; then 
+			echo ""$i" jest katalogiem"
 		else
-			echo "$arg to pusty katalog" 
+			echo ""$i" jest pustym katalogiem"
 		fi
-	else
-		echo "$arg nie istnieje"
+		else echo "Nie istnieje plik ani katalog "$i""
 	fi
 done
+	

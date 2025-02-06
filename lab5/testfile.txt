@@ -1,0 +1,11 @@
+Pokaz picosdasdsawdsadasdasdaddssdasdadasdasdadasddasdasdasdadsadsadacsacasgetenv("LOGNAME")                                                            = "aprystup"
+printf("Hello world %s!\n", "aprystup")                                      = 22
++++ exited (status 0) +++
+allllasiak 
+koggds
+fadasdasdad
+saddawdadsfdsgs sdfg sf
+fddsdfsdfsfsfswfnafuli;go;fg a;oh.f.lo;o; urpd fgsd
+s
+
+dfdasdasaashkoSPrawdzamy czy to działa

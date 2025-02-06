@@ -26,7 +26,7 @@ void bytes2md5(const char *data, int len, char *md5buf) {
 int load_hashes_and_emails(const char *filename, char hashes[MAX_LINES][MAX_HASH_LEN], char emails[MAX_LINES][MAX_WORD_LEN]) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Nie można otworzyć pliku");
+        perror("Nie mozna otworzyc pliku");
         return -1;
     }
 
@@ -56,7 +56,7 @@ int load_hashes_and_emails(const char *filename, char hashes[MAX_LINES][MAX_HASH
 int load_words_from_file(const char *filename, char words[MAX_LINES][MAX_WORD_LEN]) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Nie można otworzyć pliku");
+        perror("Nie mozna otworzyc pliku");
         return -1;
     }
 
@@ -76,10 +76,10 @@ int main() {
     char hash[MAX_HASH_LEN];
 
   
-    int num_passwords = load_hashes_and_emails("hdz1.txt", hashed_passwords, emails);
+    int num_passwords = load_hashes_and_emails("test-data1.txt", hashed_passwords, emails);
     if (num_passwords == -1) return 1;
 
-    int num_words = load_words_from_file("slownik.txt", dictionary);
+    int num_words = load_words_from_file("test-dict-mini.txt", dictionary);
     if (num_words == -1) return 1;
 
     for (int i = 0; i < num_words; i++) {

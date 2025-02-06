@@ -39,6 +39,7 @@ void wyswietl_komunikaty(struct babblespace *ptr) {
 }
 
 void dodaj_komunikat(struct babblespace *ptr, const char *komunikat) {
+    printf("jestem");
     if (pthread_mutex_lock(&ptr->babble_mutex) != 0) {
         perror("Problem z pthread_mutex_lock");
         return;

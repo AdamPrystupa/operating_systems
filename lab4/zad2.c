@@ -1,47 +1,51 @@
+#define _XOPEN_SOURCE 500
 #include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
-volatile sig_atomic_t signals_enable= 1; 
-volatile sig_atomic_t periodic = 0;
+void TERM_handle(int sig)
+{
+    printf("Otrzymano sygnal SIGTERM: zamykanie programu.\n");
+    _exit(0);
+};
 
-void signals_handling(int sig) {
-    switch(sig) {
-        default:
-            case SIGALRM:
-            case SIGTERM:
-                printf("Otrzymano sygnal SIGTERM: zamykanie programu.\n");
-                _exit(0);
-                break;
-            case SIGUSR1:
-                printf("Otrzymano sygnal SIGUSR1: kontynuacja programu.\n");
-                break;
-            case SIGUSR2:
-                printf("Otrzymano sygnal SIGUSR2: odbieranie sygnalu tylko w krotkich okresach.\n");
-                signals_enable = 0;
-                periodic = 1;
-                break;
-
-}
+void USR1_handle(int sig)
+{
+    printf("Otrzymano sygnal SIGUSR1: kontynuacja programu.\n");
 }
 
-int main() {
+void USR2_handle(int sig)
+{
+    printf("Otrzymano sygnal SIGUSR2.\n");
+}
+
+int main()
+{
     int i = 0;
-    struct timespec ts = {0,  10000000};
+    struct timespec ts = {0, 10000000};
+    sigset_t sigset;
 
-    signal(SIGALRM, signals_handling);
-    signal(SIGTERM, signals_handling);
-    signal(SIGUSR1, signals_handling);
-    signal(SIGUSR2, signals_handling);
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGUSR2);
+    sigprocmask(SIG_BLOCK, &sigset, NULL);
 
-    while (1) {
+    signal(SIGALRM, SIG_IGN);
+    signal(SIGTERM, TERM_handle);
+    signal(SIGUSR1, USR1_handle);
+    signal(SIGUSR2, USR2_handle);
+
+    while (1)
+    {
         ++i;
-        if (periodic==1 && i % 1000 == 0) {
-            printf("Odbieranie sygnalow aktywne.\n");
-            signals_enable=1;
+        if (i % 1000 == 0)
+        {
+            printf("Odblokowano odbieranie sygnalu!.\n");
+            sigprocmask(SIG_UNBLOCK, &sigset, NULL);
             nanosleep(&ts, NULL);
-            printf("Odbieranie sygnalow nieaktywne.\n");
-            signals_enable=0;
+            sigprocmask(SIG_BLOCK, &sigset, NULL);
+            printf("Zablokowano odbieranie sygnalu!.\n");
         }
         nanosleep(&ts, NULL);
     }

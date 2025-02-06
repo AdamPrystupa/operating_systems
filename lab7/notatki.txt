@@ -1,0 +1,96 @@
+ZAD. 1
+Wyjaśnienie działania programu:
+shm_open otwiera segment pamięci współdzielonej o nazwie BABBLE_NAME.
+mmap mapuje ten segment do przestrzeni adresowej procesu.
+Muteks: Przed wyświetleniem komunikatów blokowany jest muteks, aby zapewnić bezpieczeństwo dostępu.
+Pętla for wyświetla komunikaty w kolejności zgodnej z buforem kołowym, od babble_first do babble_total.
+Po wyświetleniu komunikatów muteks jest odblokowywany, a zasoby są zwalniane.
+Program wyświetli wszystkie komunikaty już znajdujące się w pamięci współdzielonej.
+
+ZAD. 2
+Wyjaśnienie działania programu:
+Wczytanie komunikatu użytkownika:
+Program pobiera od użytkownika nowy komunikat o maksymalnej długości BABBLE_LENGTH - 1.
+Blokada muteksem:
+Przed dodaniem komunikatu blokowany jest muteks, aby uniknąć konfliktów dostępu.
+Dodanie komunikatu:
+Nowy komunikat jest wpisywany do tablicy babbles na właściwej pozycji, zgodnie z zasadami bufora kołowego.
+Jeśli tablica jest pełna, babble_first jest aktualizowany, aby nadpisać najstarszy komunikat.
+Zwalnianie muteksu:
+Po zakończeniu dodawania muteks jest zwalniany, a zmiany są widoczne dla innych procesów.
+
+ZAD.3 
+Wyjaśnienie działania programu:
+Dostęp do pamięci współdzielonej:
+Program otwiera istniejący segment pamięci współdzielonej i mapuje go do przestrzeni adresowej procesu.
+Blokada muteksem:
+Przed wyświetleniem komunikatów program blokuje muteks, aby upewnić się, że dane są spójne.
+Wyświetlanie komunikatów:
+Komunikaty są wyświetlane w kolejności chronologicznej, zaczynając od babble_first i przesuwając się zgodnie z zasadami bufora kołowego.
+Zwalnianie muteksu:
+Po wyświetleniu komunikatów program zwalnia muteks.
+Zamknięcie zasobów:
+Na końcu program zamyka mapowanie pamięci oraz deskryptor pliku.
+Czego potrzebujesz, aby przetestować program:
+Działającego segmentu pamięci współdzielonej z odpowiednio zainicjowanymi strukturami.
+Programu lub procesu, który wpisuje komunikaty do tego segmentu, aby można było je wyświetlić.
+
+ZAD. 4
+Wyjaśnienie działania programu:
+Dostęp do pamięci współdzielonej:
+
+Program otwiera istniejący segment pamięci współdzielonej za pomocą funkcji shm_open, a następnie mapuje go do przestrzeni adresowej procesu przy pomocy funkcji mmap.
+Dodawanie komunikatów:
+
+Funkcja dodaj_komunikat umożliwia użytkownikowi dodanie komunikatu do tablicy babbles w pamięci współdzielonej. Jeśli tablica jest pełna, nadpisuje najstarszy komunikat (wprowadzony na pozycji babble_first).
+Komunikat jest zapisywany do tablicy, a wskaźniki babble_first i babble_total są odpowiednio aktualizowane.
+Użycie muteksu zapewnia, że tylko jeden proces w danym czasie modyfikuje pamięć współdzieloną.
+Następnie sygnalizuje się innym procesom oczekującym na zmienną warunkową, że nowy komunikat został dodany (pthread_cond_broadcast).
+Wyświetlanie komunikatów:
+
+Funkcja wyswietl_komunikaty odczytuje komunikaty z pamięci współdzielonej, wyświetlając je w odpowiedniej kolejności, zachowując dyscyplinę bufora kołowego.
+Wprowadzenie nicku:
+
+Program prosi użytkownika o podanie swojego nicku, który będzie dodawany przed każdym komunikatem, aby inni użytkownicy wiedzieli, kto wysłał dany komunikat.
+Interaktywne wpisywanie komunikatów:
+
+Użytkownik wpisuje komunikaty, które są natychmiast dodawane do pamięci współdzielonej i wyświetlane.
+Program kończy działanie, gdy użytkownik wprowadzi pusty komunikat.
+Zamknięcie zasobów:
+
+Na końcu program zamyka mapowanie pamięci oraz deskryptor pliku.
+Testowanie:
+Uruchomienie programu:
+
+Uruchom program w terminalu, wprowadź nick, a następnie zaczynaj wpisywać komunikaty.
+Interakcja z innymi użytkownikami:
+
+Możesz uruchomić program w kilku oknach terminalowych. Komunikaty, które wprowadza jeden użytkownik, będą widoczne natychmiast w innych instancjach programu.
+Zakończenie programu:
+
+Aby zakończyć program, wystarczy wprowadzić pusty komunikat (naciśnięcie Enter bez wpisywania tekstu).
+Uwagi:
+Pamięć współdzieloną należy wcześniej zainicjować zgodnie z opisem w zadaniach wstępnych, zapewniając dostęp do segmentu pamięci współdzielonej oraz odpowiednią synchronizację.
+
+ZAD. 5
+Wyjaśnienie działania programu:
+Proces rodzica (główny):
+
+Program otwiera istniejący segment pamięci współdzielonej i mapuje go do swojej przestrzeni adresowej.
+Użytkownik podaje swój nick, który będzie dodawany przed każdym wpisywanym komunikatem.
+Użytkownik wprowadza komunikaty, które są dodawane do pamięci współdzielonej przy użyciu funkcji dodaj_komunikat.
+Proces potomny (fork):
+
+Program tworzy nowy proces przy pomocy funkcji fork. Proces potomny uruchamia funkcję sluchaj_komunikatow, która nasłuchuje na zmiennej warunkowej babble_cond i czeka na sygnał od procesu rodzica.
+Gdy nowy komunikat zostanie dodany do pamięci współdzielonej, proces rodzic wysyła sygnał zmiennej warunkowej (pthread_cond_broadcast), co powoduje, że proces potomny wyświetla nowy komunikat.
+Interakcja użytkownika:
+
+Użytkownik wprowadza komunikaty w terminalu. Komunikaty są natychmiast wyświetlane zarówno przez proces rodzica (wpisującego komunikat), jak i przez proces potomny (nasłuchujący nowych komunikatów).
+Program kontynuuje działanie aż do momentu, gdy użytkownik zdecyduje się zakończyć, wprowadzając pusty komunikat.
+Zamknięcie:
+
+Po zakończeniu wpisywania komunikatów proces rodzica zamyka pamięć współdzieloną, a także czeka na zakończenie procesu potomnego.
+Testowanie:
+Aby sprawdzić poprawność programu, uruchom go w dwóch oknach terminalowych. Komunikaty wprowadzane przez jeden proces będą natychmiast widoczne w drugim procesie.
+
+

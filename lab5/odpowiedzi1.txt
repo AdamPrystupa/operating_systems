@@ -1,0 +1,52 @@
+ZAD.1
+(a)
+"strace" to narzędzie służące do śledzenia wywołań systemowych wykonywanych przez program. 
+Co do najważniejszych opcji to zależy to od tego co chcemy uzyskać jednak przydatne mogą sie okazać poniższe opcje:
+-e: umożliwia śledzenie tylko wybranych wywołań systemowych (np. open, read).
+-p: śledzenie procesu o określonym PID bez konieczności ponownego uruchamiania programu.
+-o: zapisuje wyjście wywołania strace do pliku.
+-tt: dodaje dokładny znacznik czasu dla każdej linii.
+-T: pokazuje czas trwania każdego wywołania.
+-c: pokazuje czas spędzony na poszczególnych wywołaniach systemowych.
+-f: pozwala na śledzenie procesów potomnych.
+
+(b)
+Po wywołaniu polecenia:
+$ strace ./zad1b
+
+write(1, "Hello world!\n", 13Hello world!)          = 13
+
+
+można odnaleźć w jego wyniku, że funkcja która została wywołana w celu wyświetlenia napisu to "write".
+Funkcja printf() w języku ANSI C w celu wypisania komunikatu w terminalu musi o to "poprosić" system służy do tego własnie
+systemcall "write", który został wywołany. Funkcja "write" używa deskryptora "1" który wskazuje na wyjście standardowe. 
+Liczba po znaku równości informuje nas o ilości znaków wyświetlanego komunikatu.
+
+(c)
+Aplikacja posiada dwa deskryptory: 1 i 3.
+
+(d)
+Przez funkcje systemową został wyswietlony napis "Hello world aprystup!".
+Getnev nie jest widoczny dla systemu ponieważ jest to funkcja z biblioteki a nie funkcja systemowa.
+
+Po wywołaniu ltrace można zaobserwować, że getnev został uchwycony:
+getenv("LOGNAME")                                                            = "aprystup"
+
+Strace i ltrace dostarczają uzupełniających się informacji. Strace jest idealny do analizy interakcji programu z systemem operacyjnym,
+a ltrace do analizy na poziomie bibliotecznym. Połączenie wyników z obu narzędzi pozwala uzyskać pełny wgląd w działanie programu.
+Aby jednoczśnie śledzić wywołania strace i ltrace możemy użyć potoku i zapisać je do pliku np:
+$ strace -o strace.txt ./zad1d & ltrace -o ltrace.txt ./zad1d
+
+dla ułatwienia można stworzyć skrypt realizujący takie wywolanie
+
+(e)
+Wyrażenie z strace wskazujące WYŁĄCZNIE odczytywane pliki:
+$ strace -e t=openat sh hello.sh
+
+Wynik wywołania:
+openat(AT_FDCWD, "/etc/ld.so.preload", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "hello.sh", O_RDONLY)  = 3
+Hello world!
++++ exited with 0 +++

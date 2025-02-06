@@ -10,23 +10,10 @@
 #define PACKAGE_SIZE 50
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Użycie: %s <ścieżka do pliku1> <ścieżka do pliku2> ...\n", argv[0]);
-        return 1;
-    }
 
     const char *fifo_path = "/tmp/my-fifo";
-
-    if (mkfifo(fifo_path, 0666) == -1) {
-        perror("mkfifo");
-        return 1;
-    }
-
+    mkfifo(fifo_path, 0666);
     int fifo_fd = open(fifo_path, O_WRONLY);
-    if (fifo_fd == -1) {
-        perror("open");
-        return 1;
-    }
 
     FILE **files = malloc((argc - 1) * sizeof(FILE *));
     size_t *offsets = malloc((argc - 1) * sizeof(size_t));
@@ -34,12 +21,6 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i < argc; i++) {
         FILE *file = fopen(argv[i], "r");
-        if (file == NULL) {
-            perror("fopen");
-            files[i - 1] = NULL;
-            offsets[i - 1] = 0;
-            continue;
-        }
         files[i - 1] = file;
         offsets[i - 1] = 0;
         files_remaining++;

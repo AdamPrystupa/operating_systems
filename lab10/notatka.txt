@@ -1,0 +1,8 @@
+Zrealizowane:
+-stworzono menu
+-stworzono funkcje odpowiedzialne za poszczególne opcje menu
+
+Pozostało: 
+-utworzyc wątek menu, który będzie działał niezależnie od reszty programu,
+-przemyśleć problem kiedy program w tle wykona sie i przejdzie przez wszystkie pętle
+po czym dodane zostaną nowe pliki na koniec tabel.

@@ -6,49 +6,48 @@ uruchomiłem 15 pętli nieskończonych jako procesy na serwerze diablo.
 Przy pomocy progtamu top a konkretnie jego wywołania:
 $ top -u aprystup
 obserwowałem jak zmieniaja się procentowe zużycie CPU dla konkretnego procesu.
-Przed jakimikolwiek zmianami wszystkie procesy COMMAND='bash' miały taką samą l>
+Przed jakimikolwiek zmianami wszystkie procesy COMMAND='bash' miały taką samą liczbę nice, przez to zauważyłem, że zmieniają one swoje wykorzystanie CPU cyklicznie.
 Wykorzystanie procesora dla każdego procesu wahało się w przedziale od 5% do 9%.
 
 Po zmianie liczby nice jednego z procesów komendą:
 $ renice +10 -p 7555
-zaobserwowałe, że wykorzystanie CPU dla procesu ze zmienioną liczbą nice nie by>
+zaobserwowałe, że wykorzystanie CPU dla procesu ze zmienioną liczbą nice nie było wieksze niż 6%.
 Oznacza to, że proces nadal był wykonywany, ale jego priorytet znacząco spadł.
-Pozostałe procesy nadal cyklicznie zmieniały zurzycie CPU w wyżej podanym przed>
+Pozostałe procesy nadal cyklicznie zmieniały zurzycie CPU w wyżej podanym przedziale. Co potwierdza wyjątek procesu 7555, który działał na ograniczonej dostępności procesora.
 
-ZAD. 6
+ZAD. 6 
 Po użyciu komendy:
 $ ulimit -u 10
- pózniejszym wywołaniu polecenia ls, otrzymałem komunikat:
+i pózniejszym wywołaniu polecenia ls, otrzymałem komunikat:
 bash: fork: retry: Resource temporarily unavailable
-Po tym komunikacie nie mogę wywoałać żadnej komendy ani procesu. Spowodowane je>
+Po tym komunikacie nie mogę wywoałać żadnej komendy ani procesu. Spowodowane jest to brakiem wolnych slotów dla użytkownika, które ograniczyłem do dwóch komendą powyżej.
 
-Jedynym rozwiązaniem tego problemu jest zamkniecie powłoki, w której wywołana z>
+Jedynym rozwiązaniem tego problemu jest zamkniecie powłoki, w której wywołana została komenda ulimit.
 
 Stworzyłem skrypt loop.sh, który w nieskończonej pętli wywołuje sam siebie.
 Ograniczyłem ilość procesów do 50 poleceniem:
 $ ulimit -u 50
 i wywołałem skrypt loop.sh
 
-Jakiekolwiek działanie z terminala, w którym uruchomiłem skrypt nie było możliw>
-Otworzyłem drugi terminal i połączyłem się z serwerem, na którym uruchomiłem sk>
+Jakiekolwiek działanie z terminala, w którym uruchomiłem skrypt nie było możliwe przez ciągłe wyświetlanie komunikatu o braku zasobów przez skrypt, który chciał się ciągle uruchamiać.
+Otworzyłem drugi terminal i połączyłem się z serwerem, na którym uruchomiłem skrypt.
 Próbowałem różnych działań a ich wyniki sprawdzałem poleceniem:
 $ top -u aprystup
 
 Wyniki jakie otrzymałem:
 1.$ killall loop.shh
-Chwilowe zabicie procesów aktywnych, które od razu zostały wypełnione przez now>
+Chwilowe zabicie procesów aktywnych, które od razu zostały wypełnione przez nowe zapętlone skrypty.
 2.$ pkill -u aprystup
 Wynik jak wyżej.
-3.$ pkill -f loop.sh
+3.$ pkill -f loop.sh 
 Wynik jak wyżej.
-4.$ kill -9 -1
-Zabicie wszystkich procesów użytkownika i wylogowanie z serwera na wszytkich ak>
+4.$ kill -9 -1 
+Zabicie wszystkich procesów użytkownika i wylogowanie z serwera na wszytkich aktualnie połączonych z nim terminalach.
 5.$ pkill -u aprystup -f loop.sh
 Tak jak w punktach 1,2 i 3.
-6.$ pgrep -f 'loop.sh' | xargs -r kill -9
-Oczekiwane działanie czyli zabicie wszystkich procesów loop.sh. Skutecznie czyl>
+6.$ pgrep -f 'loop.sh' | xargs -r kill -9 
+Oczekiwane działanie czyli zabicie wszystkich procesów loop.sh. Skutecznie czyli nie zastąpiły ich nowe procesy.
 
 
-Wniosek jest następujący. Trzeba bardzo uważać przy tworzeniu skryptów z pętlą >
-
+Wniosek jest następujący. Trzeba bardzo uważać przy tworzeniu skryptów z pętlą nieskończoną i przy ich wywoływaniu. O czym sam się przekonałem kiedy przez nieuwage wywołałem skrypt w terminalu bez ustawienia w nim wcześniej ulimita[*].
 

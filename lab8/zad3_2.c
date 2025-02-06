@@ -16,30 +16,31 @@ long suma = 0;        // Suma liczb pierwszych
 pthread_mutex_t muteks_pobierania;
 pthread_mutex_t muteks_sumowania;
 
-bool is_prime(int num) {
-    if (num < 2) return false;
-    for (int i = 2; i * i <= num; i++) {
-        if (num % i == 0) return false;
+bool pierwsza(int liczba) {
+    if (liczba < 2) return false;
+    for (int i = 2; i <= liczba/2; i++)
+    {
+        if (liczba % i == 0) return false;
     }
     return true;
 }
 
-void *find_primes(void *arg) {
+void *znajdz_pierwsza(void *arg) {
     while (1) {
-        int current;
+        int obecna;
 
         pthread_mutex_lock(&muteks_pobierania);
         if (znalezione >= N) {
             pthread_mutex_unlock(&muteks_pobierania);
             break;
         }
-        current = sprawdz++;
+        obecna = sprawdz++;
         pthread_mutex_unlock(&muteks_pobierania);
 
-        if (is_prime(current)) {
+        if (pierwsza(obecna)) {
             pthread_mutex_lock(&muteks_sumowania);
             if (znalezione < N) {
-                suma += current;
+                suma += obecna;
                 znalezione++;
             }
             pthread_mutex_unlock(&muteks_sumowania);
@@ -68,11 +69,11 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&muteks_pobierania, NULL);
     pthread_mutex_init(&muteks_sumowania, NULL);
 
-    long start_time = get_time_in_microseconds();
+    long czas_start = get_time_in_microseconds();
 
     pthread_t threads[K];
     for (int i = 0; i < K; i++) {
-        if (pthread_create(&threads[i], NULL, find_primes, NULL)) {
+        if (pthread_create(&threads[i], NULL, znajdz_pierwsza, NULL)) {
             printf("ERROR: niepowodzenie przy tworzeniu watku %d\n", i);
             return 1;
         }
@@ -82,10 +83,10 @@ int main(int argc, char *argv[]) {
         pthread_join(threads[i], NULL);
     }
 
-    long end_time = get_time_in_microseconds();
+    long czas_stop = get_time_in_microseconds();
 
     printf("Suma pierwszych %d liczb pierwszych zaczynając od %d to: %ld\n", N, M, suma);
-    printf("Czas działania programu: %.3f sekund\n", (end_time - start_time) / 1e6);
+    printf("Czas działania programu: %.3f sekund\n", (czas_stop - czas_start) / 1e6);
 
     pthread_mutex_destroy(&muteks_pobierania);
     pthread_mutex_destroy(&muteks_sumowania);

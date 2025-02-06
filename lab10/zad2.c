@@ -7,8 +7,7 @@
 #define MAX_HASH_LEN 33
 #define MAX_LINES 1000
 #define COLUMN_SEPARATOR "\t"
-#define MAX_PREFIX_POSTFIX 1000
-
+#define MAX_PREFIX_POSTFIX 100
 void bytes2md5(const char *data, int len, char *md5buf) {
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     const EVP_MD *md = EVP_md5();
@@ -109,10 +108,10 @@ int main() {
     char emails[MAX_LINES][MAX_WORD_LEN];
     char dictionary[MAX_LINES][MAX_WORD_LEN];
 
-    int num_passwords = load_hashes_and_emails("hdz2.txt", hashed_passwords, emails);
+    int num_passwords = load_hashes_and_emails("test-data2.txt", hashed_passwords, emails);
     if (num_passwords == -1) return 1;
 
-    int num_words = load_words_from_file("msph123.txt", dictionary);
+    int num_words = load_words_from_file("test-dict-mini.txt", dictionary);
     if (num_words == -1) return 1;
 
     for (int i = 0; i < num_words; i++) {

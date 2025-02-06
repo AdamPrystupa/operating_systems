@@ -1,0 +1,74 @@
+ZAD.1
+
+(a) 
+wyswietlanie:
+$ ps - l -u aprystup
+wyswietlanie i liczenie:
+$ ps - l -u aprystup | wc -l
+
+wynik -1 bo pierwszy wiersz to naglowek kolumn
+wynik polecenia: 79
+wynik koncowy: 79 - 1 = 78
+
+(b) liczenie: pgrep -a -c sshd
+wynik lokalnie: 1
+wynik na panamincie: 27
+
+wyswietlanie: ps -f -p $(pgrep sshd)
+
+ZAD.2
+Po wywolaniu programu procesA:
+#!/bin/bash
+
+./procesB.sh 
+sleep 60
+
+procesB:
+#!/bin/bash
+
+./procesC.sh 
+sleep 60
+
+procesC:
+#!/bin/bash
+
+while true; do
+	echo 'procesC'	 
+	sleep 2 
+done
+
+utworzone zostaly trzy procesy w hiererchii kolejno od najstarszego A->B->C.
+
+po wywolaniu polecenia:
+$ ps --forest -u aprystup
+możemy zaobserwowac hiererchie wyzej wymienionych procesow,
+
+po zabiciu procesu B komenda:
+$ pkill procesB.sh
+i wywolaniu polecenia:
+$ ps -l -u aprystup
+
+widac, ze dla procesu A nie zaszly zadne zmiany, proces B zostal zabity a proces C nadal istnieje jednak jego rodzicem zostal init co widac w kolumnie PPID = 1,
+
+ZAD.3
+
+(c) sygnalu SIGKILL nie da sie przechwycic
+(d) sprawdzone, dziala
+(e) sprawdzone, potwierdzam
+(f) fg dziala tak samo, bg odpala proces w tle widac to po znaku "&" przy wywolaniu
+
+ZAD.4
+potok:
+$ yes | cat | grep y 
+yes: generuje nieskonczony strumien wierszy, ktore zawierają literę "y",
+cat: odbiera dane od "yes" i przekazuje je dalej bez zmian,
+grep y: filtrowanie wynikow - wyświetla tylko te linie, ktore zawierają literę "y" (czyli wszystkie),
+
+po sprawdzeniu zaleznosci pomiedzy procesami poleceniem:
+$ ps --forest -l -u aprsytup 
+F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
+0 S 17159 1652161 1652122  0  80   0 -  2866 do_wai pts/1    00:00:00  \_ bash
+0 S 17159 1656389 1652161  0  80   0 -  2079 pipe_w pts/1    00:00:19      \_ yes
+0 S 17159 1656390 1652161  0  80   0 -  2114 pipe_w pts/1    00:00:28      \_ cat
+0 R 17159 1656391 1652161 99  80   0 -  2329 -      pts/1    07:36:54      \_ grep
+widac, ze sa one potomkami jednego rodzica (maja taki sam PPID), sa odpalone jeden po drugim,

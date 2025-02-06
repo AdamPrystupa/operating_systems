@@ -1,0 +1,29 @@
+ZAD. 1
+Po stworzeniu programu zad1.c, skompilowaniu go i uruchomieniu zajmuje on pierwsze miejsce pod względem zużycia procesora.
+Po dodaniu do programu funkcji:
+nanosleep()
+ponownym skompilowaniu i uruchomieniu sytuacja znacząco się poprawiła. 
+Zużycie CPU spadło z niemal 100% do poniżej 1%.
+
+Aby zmienić częstotliwość odświeżania programu top należy użyć flagi -d, przykładowe wywołanie:
+$ top -d 0.1 -u aprystup 
+Po takim wywołaniu odświeżanie będzie odbywało się co 0.1s czyli 100ms.
+
+ZAD. 2
+Po uruchomieniu programu zad2 w petli iteracyjnej jest uruchamiane okno, w którym obsługiwany jest SIGUSR2. Kiedy wyslemy ten sygnał do programu poleceniem:
+$ pkill SIGUSR2 zad2
+to w oknie kiedy powinien być on obsługiwany pojawi sie odpowiedni komunikat.
+
+Po wysłaniu sygnału:
+$ pkill SIGUSR1 zad2
+otrzymamy komunikat o tym, że sygnał został obslużony i program jest wykonywany dalej.
+
+Po wysłaniu sygnału:
+$ pkill SIGALRM zad2
+nie otrzymamy, żadnego komunikatu ponieważ sygnał został zignorowany przez program.
+
+Po wysłaniu sygnału:
+$ pkill SIGTERM zad2
+program zostaje zabity natychmiastowo.
+
+Wszystkie sygnały zostały obsłużone w sposób wymagany w poleceniu do zadania. 
